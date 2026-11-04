@@ -45,15 +45,22 @@ val avinEditorDir: Directory = layout.projectDirectory.dir(providers.gradlePrope
 val avinBundle = tasks.register<Sync>("avinBundle") {
     description = "Copies the Avin TextMate grammar, language configuration and manifest into the plugin."
     val source = avinEditorDir
+    val bundleFiles = listOf(
+        "package.json",
+        "language-configuration.json",
+        "language-configuration-literate.json",
+        "syntaxes/avin.tmLanguage.json",
+        "syntaxes/lavin.tmLanguage.json",
+    )
     doFirst {
-        for (name in listOf("package.json", "language-configuration.json", "syntaxes/avin.tmLanguage.json")) {
+        for (name in bundleFiles) {
             check(source.file(name).asFile.isFile) {
                 "No $name under ${source.asFile}: set -PavinEditorDir to the Avin editor directory (editors/vscode in the Avin repository)."
             }
         }
     }
     from(source) {
-        include("package.json", "language-configuration.json", "syntaxes/avin.tmLanguage.json")
+        include(bundleFiles)
     }
     into(layout.buildDirectory.dir("textmate/avin"))
 }

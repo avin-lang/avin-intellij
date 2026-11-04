@@ -7,7 +7,10 @@ indentation-based syntax.
 - Syntax highlighting for `.avin` files, from the Avin TextMate grammar
 - Bracket matching, auto-closing brackets and quotes, and `//` line comments (Code | Comment with
   Line Comment), from the Avin language configuration
-- The Avin icon on `.avin` files
+- Literate Avin (`.lavin`) files: a Markdown document whose lines indented four columns are Avin
+  code. The prose is highlighted as Markdown and the code as Avin, and the language server serves
+  them like `.avin` files (language id `avin-literate`)
+- The Avin icon on `.avin` and `.lavin` files
 - The Avin language server (`avin lsp --stdio`) through [LSP4IJ](https://github.com/redhat-developer/lsp4ij):
   diagnostics, hover, go to definition and the file structure, and whatever else the server offers
   as it grows
@@ -16,6 +19,11 @@ indentation-based syntax.
   each `@test`, results in the test runner, and traps and diagnostics linked to the source
 
 The plugin targets IntelliJ Platform 2026.2 (build 262) and later, and uses LSP4IJ 0.21.0 or later.
+
+## Changes
+
+- 0.1.1: recognizes literate Avin `.lavin` files (grammar, icon, language server).
+- 0.1.0: first release (`.avin` highlighting, editor behaviour, language server).
 
 ## Installing from disk
 
@@ -93,11 +101,12 @@ without a directory, so the file is looked for under the program's root.
 
 The grammar and the editor behaviour have one source: the Avin repository's
 `editors/vscode/` directory. The build copies three files from it into the plugin, as a TextMate
-bundle under `textmate/avin/` beside the plugin's jars:
+bundle under `textmate/avin/` beside the plugin's jars (five files since 0.1.1):
 
-- `package.json`: the bundle manifest that names the language, the `.avin` extension and the files below
+- `package.json`: the bundle manifest that names the languages, the `.avin` and `.lavin` extensions and the files below
 - `syntaxes/avin.tmLanguage.json`: the grammar
 - `language-configuration.json`: comments, brackets, auto-closing pairs and indentation
+- `syntaxes/lavin.tmLanguage.json` and `language-configuration-literate.json`: the same for `.lavin` files
 
 The directory is the Gradle property `avinEditorDir`, `../avin/editors/vscode` by default (the
 Avin repository checked out beside this one). Point it elsewhere with

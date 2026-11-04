@@ -7,7 +7,8 @@
     light, indentation-based syntax.
     <ul>
       <li>Syntax highlighting, bracket matching, auto-closing pairs and <code>//</code> line comments
-          for <code>.avin</code> files</li>
+          for <code>.avin</code> files, and for literate <code>.lavin</code> files (Markdown prose
+          with the indented code in Avin)</li>
       <li>The Avin language server (<code>avin lsp --stdio</code>) through LSP4IJ: diagnostics,
           hover, go to definition and the file structure</li>
       <li>Run configurations for <code>avin run</code> and <code>avin test</code>, with ▶ in the gutter
@@ -53,5 +54,8 @@
         <fileNamePatternMapping patterns="*.avin"
                                 serverId="avinLanguageServer"
                                 languageId="avin"/>
+        <fileNamePatternMapping patterns="*.lavin"
+                                serverId="avinLanguageServer"
+                                languageId="avin-literate"/>
     </extensions>
 </idea-plugin>
