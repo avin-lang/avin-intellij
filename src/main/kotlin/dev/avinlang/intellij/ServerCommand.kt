@@ -16,23 +16,38 @@ data class ServerCommand(
 const val DEFAULT_SERVER_PATH = "avin"
 
 /**
- * The command line that runs the language server on stdio. With [repository] set, the compiler is
- * run from that checkout through `sysl run`, with `AVIN_ROOT` naming the checkout so the server
- * finds its library and runtime, and the checkout as the working directory; otherwise the
- * installed `avin` (or [configured]) is run as it is.
+ * The command line that runs `avin` with [avinArgs]. With [repository] set, the compiler is run
+ * from that checkout through `sysl run`, with `AVIN_ROOT` naming the checkout so it finds its
+ * library and runtime; otherwise the installed `avin` (or [configured]) is run as it is. The
+ * working directory is [cwd].
  */
-fun serverCommand(configured: String?, repository: String?, base: Map<String, String>): ServerCommand {
+fun avinCommand(
+    configured: String?,
+    repository: String?,
+    base: Map<String, String>,
+    avinArgs: List<String>,
+    cwd: String? = null,
+): ServerCommand {
     val repo = repository?.trim().orEmpty()
     if (repo.isNotEmpty()) {
         return ServerCommand(
             command = "sysl",
-            args = listOf("run", File(repo, "compiler").path, "--", "lsp", "--stdio"),
+            args = listOf("run", File(repo, "compiler").path, "--") + avinArgs,
             env = base + ("AVIN_ROOT" to repo),
-            cwd = repo,
+            cwd = cwd,
         )
     }
     val command = configured?.trim()?.takeIf { it.isNotEmpty() } ?: DEFAULT_SERVER_PATH
-    return ServerCommand(command, listOf("lsp", "--stdio"), base)
+    return ServerCommand(command, avinArgs, base, cwd)
+}
+
+/**
+ * The command line that runs the language server on stdio: [avinCommand] with `lsp --stdio`, and
+ * for a [repository] the checkout as the working directory.
+ */
+fun serverCommand(configured: String?, repository: String?, base: Map<String, String>): ServerCommand {
+    val repo = repository?.trim().orEmpty()
+    return avinCommand(configured, repository, base, listOf("lsp", "--stdio"), repo.ifEmpty { null })
 }
 
 /**

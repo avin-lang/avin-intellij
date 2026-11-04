@@ -12,6 +12,9 @@ indentation-based syntax.
   diagnostics, hover, go to definition and the file structure, and whatever else the server offers
   as it grows
 
+- Running programs and their tests: an **Avin** run configuration, ▶ in the gutter on `main` and on
+  each `@test`, results in the test runner, and traps and diagnostics linked to the source
+
 The plugin targets IntelliJ Platform 2026.2 (build 262) and later, and uses LSP4IJ 0.21.0 or later.
 
 ## Installing from disk
@@ -39,6 +42,52 @@ Changing either restarts the server. If the server cannot be found or started, t
 once in a notification and leaves the server off; highlighting, brackets and comments keep working.
 After fixing the setting, the server starts again for open Avin files. LSP4IJ's own **Language
 Servers** tool window shows the server's state and its log, and can restart it.
+
+## Running and testing
+
+Programs run through `avin run` and their tests through `avin test`, invoked the way the language
+server is: the server path, or `sysl run <repository>/compiler -- …` with `AVIN_ROOT` set when a
+repository is chosen in the settings.
+
+**Run configurations.** Run | Edit Configurations… | + | **Avin**:
+
+| Field | Meaning |
+|---|---|
+| Command | Run (`avin run`) or Test (`avin test`) |
+| Program | An `.avin` or `.lavin` file, a directory, or a path in a package (a directory holding `avin.hocon`) |
+| Optimization | Default (the compiler's, `-O2`), `-O0` or `-O2` |
+| Program arguments | Passed to the program after `--` (Run) |
+| Test filter | Keeps the tests whose name or file contains it (Test) |
+| Working directory | Empty runs in the program's root: its package, its directory, or the directory holding a program of one file |
+| Environment variables | Added to your shell's environment, which can be left out |
+
+Run from the context menu of an Avin file, or of a directory holding a package or Avin files, makes
+a configuration for the program the file is in: its package, or outside a package the file itself
+(a directory of loose files is not assumed to be one program, since a directory of examples holds
+many).
+
+**The gutter.** An Avin file has no syntax tree in the IDE, so the run icons are placed from its
+text:
+
+- ▶ on a line starting `main(` at column 0 runs the program;
+- ▶ on the declaration after a line that is `@test` or `@test("a sentence")` runs that test, with
+  its name (the sentence, or else the function's name) as the filter; blank lines, comments and
+  other annotations may come between, anything else cancels it;
+- ▶ on the first line of a file with tests runs them: in a package or a directory program it offers
+  the file's tests or all of the program's.
+
+In a `.lavin` file the same rules apply to the program lines, those indented four columns outside a
+fenced block. The filter is `avin test`'s, which keeps every test whose name or file contains it,
+so running one test can also run another whose name contains its own.
+
+**Test results.** `avin test`'s report is shown in the test runner: a node per file, each test
+passed or failed with its time, and under a failure its reason and what it printed. A failed test
+navigates to the trap that stopped it (`… at clamp.avin:13:5`), and a passed one to its declaration.
+Diagnostics from a program that does not build are shown in the console as they are.
+
+**The console.** Places in a run's output, a trap's `avin: trap: <reason> at <file>:<line>:<col>`
+and a diagnostic's `--> <path>:<line>:<col>`, are links to the source. A trap names its file
+without a directory, so the file is looked for under the program's root.
 
 ## How the grammar is sourced
 
@@ -69,9 +118,10 @@ into `~/.gradle` if no JDK 21 is installed.
 ```
 
 - `buildPlugin` writes `build/distributions/avin-intellij-<version>.zip`.
-- `test` runs the unit tests (how the server's command line is built from the settings) and the
-  platform tests (the bundle is found, `.avin` files get the grammar, comments, bracket closing and
-  the icon).
+- `test` runs the unit tests (how the server's and the run's command lines are built, finding `main`
+  and the tests in a file's text, reading `avin test`'s report, places in output) and the platform
+  tests (the bundle is found, `.avin` files get the grammar, comments, bracket closing and the icon;
+  the gutter's run icons, run configurations, console links, and a test run filling the test tree).
 - `verifyPlugin` checks the zip against the recommended IDE releases with the IntelliJ Plugin Verifier.
 - `runIde` starts a sandbox IDE with the plugin and LSP4IJ installed.
 

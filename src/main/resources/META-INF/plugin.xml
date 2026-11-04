@@ -10,10 +10,18 @@
           for <code>.avin</code> files</li>
       <li>The Avin language server (<code>avin lsp --stdio</code>) through LSP4IJ: diagnostics,
           hover, go to definition and the file structure</li>
+      <li>Run configurations for <code>avin run</code> and <code>avin test</code>, with ▶ in the gutter
+          on <code>main</code> and on each <code>@test</code>, test results in the test runner, and
+          traps and diagnostics linked to the source in the console</li>
       <li>Settings | Languages &amp; Frameworks | Avin chooses the server executable, or a checkout
           of the Avin repository to run it from</li>
     </ul>
     ]]></description>
+
+    <dependencies>
+        <module name="intellij.platform.smRunner"/>
+        <module name="intellij.platform.testRunner"/>
+    </dependencies>
 
     <depends>com.intellij.modules.platform</depends>
     <depends>org.jetbrains.plugins.textmate</depends>
@@ -27,6 +35,10 @@
                                  id="dev.avinlang.avin.settings"
                                  displayName="Avin"/>
         <notificationGroup id="Avin" displayType="BALLOON"/>
+        <configurationType implementation="dev.avinlang.intellij.run.AvinConfigurationType"/>
+        <runConfigurationProducer implementation="dev.avinlang.intellij.run.AvinRunConfigurationProducer"/>
+        <codeInsight.lineMarkerProvider language="textmate"
+                                        implementationClass="dev.avinlang.intellij.run.AvinRunLineMarkerProvider"/>
     </extensions>
 
     <extensions defaultExtensionNs="com.redhat.devtools.lsp4ij">

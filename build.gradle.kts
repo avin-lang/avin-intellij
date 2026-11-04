@@ -15,6 +15,8 @@ dependencies {
     intellijPlatform {
         intellijIdea(providers.gradleProperty("platformVersion"))
         bundledPlugin("org.jetbrains.plugins.textmate")
+        bundledModule("intellij.platform.smRunner")
+        bundledModule("intellij.platform.testRunner")
         plugin("com.redhat.devtools.lsp4ij", providers.gradleProperty("lsp4ijVersion").get())
         testFramework(TestFrameworkType.Platform)
         testBundledPlugins("com.intellij.modules.ultimate")
