@@ -13,6 +13,7 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.testFramework.PlatformTestUtil
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import dev.avinlang.intellij.AvinSettings
+import org.jetbrains.plugins.textmate.TextMateFileType
 import org.jetbrains.plugins.textmate.TextMateService
 import java.io.File
 import java.util.concurrent.TimeUnit
@@ -74,6 +75,44 @@ class AvinRunPlatformTest : BasePlatformTestCase() {
                 2 to "Run 'clamp.avin'",
                 6 to "Run 'clamps below the low bound'",
                 10 to "Run 'leavesInRange'",
+            ),
+            marks,
+        )
+    }
+
+    fun `test a literate file has run icons on its program lines only`() {
+        val source = """
+            |# Clamping
+            |
+            |The program:
+            |
+            |    main() =
+            |        print("clamped")
+            |
+            |A test of it:
+            |
+            |    @test("clamps below the low bound")
+            |    below()
+            |        assert(true)
+            |
+            |```avin
+            |    main() =
+            |```
+            |
+            |main() = prose
+        """.trimMargin()
+        myFixture.configureByText("clamp.lavin", source)
+        assertEquals(TextMateFileType.INSTANCE, myFixture.file.virtualFile.fileType)
+        val document = myFixture.editor.document
+        val marks = myFixture.findAllGutters()
+            .filterIsInstance<LineMarkerInfo.LineMarkerGutterIconRenderer<*>>()
+            .map { document.getLineNumber(it.lineMarkerInfo.startOffset) to it.tooltipText }
+            .sortedBy { it.first }
+        assertEquals(
+            listOf(
+                0 to "Run 'Tests in clamp.lavin'",
+                4 to "Run 'clamp.lavin'",
+                10 to "Run 'clamps below the low bound'",
             ),
             marks,
         )
