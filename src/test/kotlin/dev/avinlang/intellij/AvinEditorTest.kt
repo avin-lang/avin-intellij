@@ -56,6 +56,20 @@ class AvinEditorTest : BasePlatformTestCase() {
         assertEquals(2, myFixture.editor.caretModel.offset)
     }
 
+    fun `test a lavin file is highlighted by the literate grammar`() {
+        val descriptor = TextMateService.getInstance().getLanguageDescriptorByExtension("lavin")
+        assertNotNull("no TextMate language for .lavin", descriptor)
+        assertEquals("text.lavin", descriptor!!.rootScopeName.toString())
+        val file = myFixture.configureByText("notes.lavin", "# Title\n\nProse.\n\n    main() =\n        println(\"hi\")\n")
+        assertEquals(TextMateFileType.INSTANCE, file.virtualFile.fileType)
+    }
+
+    fun `test a lavin file has the Avin icon`() {
+        val file = myFixture.configureByText("notes.lavin", "").virtualFile
+        val icons = FileIconProvider.EP_NAME.extensionList.mapNotNull { it.getIcon(file, 0, project) }
+        assertSame(AvinIcons.FILE, icons.first())
+    }
+
     fun `test an avin file has the Avin icon`() {
         val file = myFixture.configureByText("main.avin", "").virtualFile
         val icons = FileIconProvider.EP_NAME.extensionList.mapNotNull { it.getIcon(file, 0, project) }
