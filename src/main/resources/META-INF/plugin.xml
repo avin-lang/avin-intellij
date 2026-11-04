@@ -1,0 +1,45 @@
+<idea-plugin>
+    <id>dev.avinlang.avin</id>
+    <name>Avin</name>
+    <vendor url="https://github.com/avin-lang">avin-lang</vendor>
+    <description><![CDATA[
+    Support for <b>Avin</b>, a natively compiled, garbage-collected application language with a
+    light, indentation-based syntax.
+    <ul>
+      <li>Syntax highlighting, bracket matching, auto-closing pairs and <code>//</code> line comments
+          for <code>.avin</code> files</li>
+      <li>The Avin language server (<code>avin lsp --stdio</code>) through LSP4IJ: diagnostics,
+          hover, go to definition and the file structure</li>
+      <li>Settings | Languages &amp; Frameworks | Avin chooses the server executable, or a checkout
+          of the Avin repository to run it from</li>
+    </ul>
+    ]]></description>
+
+    <depends>com.intellij.modules.platform</depends>
+    <depends>org.jetbrains.plugins.textmate</depends>
+    <depends>com.redhat.devtools.lsp4ij</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <textmate.bundleProvider implementation="dev.avinlang.intellij.AvinBundleProvider"/>
+        <fileIconProvider implementation="dev.avinlang.intellij.AvinFileIconProvider" order="first"/>
+        <applicationConfigurable parentId="language"
+                                 instance="dev.avinlang.intellij.AvinConfigurable"
+                                 id="dev.avinlang.avin.settings"
+                                 displayName="Avin"/>
+        <notificationGroup id="Avin" displayType="BALLOON"/>
+    </extensions>
+
+    <extensions defaultExtensionNs="com.redhat.devtools.lsp4ij">
+        <server id="avinLanguageServer"
+                name="Avin"
+                factoryClass="dev.avinlang.intellij.AvinLanguageServerFactory">
+            <description><![CDATA[
+            The Avin language server, started as <code>avin lsp --stdio</code> or from a checkout of
+            the Avin repository (Settings | Languages &amp; Frameworks | Avin).
+            ]]></description>
+        </server>
+        <fileNamePatternMapping patterns="*.avin"
+                                serverId="avinLanguageServer"
+                                languageId="avin"/>
+    </extensions>
+</idea-plugin>
