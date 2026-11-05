@@ -16,7 +16,7 @@ indentation-based syntax.
 - The Avin icon on `.avin` and `.lavin` files
 - Sysl (`.sysl`) files, which Avin projects contain (the runtime, bindings, test packages): syntax
   highlighting from the Sysl repository's TextMate grammar (copied into the plugin at build time from
-  `syslGrammarDir`, default `../sysl-lang/sysl/docs/grammars`; override with `-PsyslGrammarDir=<dir>`),
+  `syslGrammarDir`, default `../../sysl-lang/sysl/docs/grammars`, the Sysl checkout beside this one's organization directory; override with `-PsyslGrammarDir=<dir>`),
   `//` and `/* */` comments, bracket closing, the Sysl icon, and the Sysl language server
   (`sysl lsp --stdio`, `sysl` found on the `PATH`) through LSP4IJ
 - The Avin language server (`avin lsp --stdio`) through [LSP4IJ](https://github.com/redhat-developer/lsp4ij):
