@@ -9,7 +9,10 @@ indentation-based syntax.
   Line Comment), from the Avin language configuration
 - Literate Avin (`.lavin`) files: a Markdown document whose lines indented four columns are Avin
   code. The prose is highlighted as Markdown and the code as Avin, and the language server serves
-  them like `.avin` files (language id `avin-literate`)
+  them like `.avin` files (language id `avin-literate`). The prose has colours of its own, set in
+  Settings | Editor | Color Scheme | Avin (*Literate Avin prose*: text, heading, emphasis, strong,
+  strikethrough, inline code, fenced block, link, list marker, block quote, horizontal rule); the
+  code keeps exactly the colours of Avin code
 - The Avin icon on `.avin` and `.lavin` files
 - The Avin language server (`avin lsp --stdio`) through [LSP4IJ](https://github.com/redhat-developer/lsp4ij):
   diagnostics, hover, go to definition and the file structure, and whatever else the server offers

@@ -1,0 +1,18 @@
+<list>
+  <option name="AVIN_PROSE_EMPHASIS">
+    <value>
+      <option name="FONT_TYPE" value="2"/>
+    </value>
+  </option>
+  <option name="AVIN_PROSE_STRONG">
+    <value>
+      <option name="FONT_TYPE" value="1"/>
+    </value>
+  </option>
+  <option name="AVIN_PROSE_STRIKETHROUGH">
+    <value>
+      <option name="EFFECT_COLOR" value="000000"/>
+      <option name="EFFECT_TYPE" value="3"/>
+    </value>
+  </option>
+</list>

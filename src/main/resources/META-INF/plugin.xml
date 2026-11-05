@@ -8,7 +8,8 @@
     <ul>
       <li>Syntax highlighting, bracket matching, auto-closing pairs and <code>//</code> line comments
           for <code>.avin</code> files, and for literate <code>.lavin</code> files (Markdown prose
-          with the indented code in Avin)</li>
+          with the indented code in Avin); the prose has colours of its own, set in Settings | Editor |
+          Color Scheme | Avin, and the program keeps the colours of Avin code</li>
       <li>The Avin language server (<code>avin lsp --stdio</code>) through LSP4IJ: diagnostics,
           hover, go to definition and the file structure</li>
       <li>Run configurations for <code>avin run</code> and <code>avin test</code>, with ▶ in the gutter
@@ -30,6 +31,11 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <textmate.bundleProvider implementation="dev.avinlang.intellij.AvinBundleProvider"/>
+        <editorHighlighterProvider filetype="textmate" order="first"
+                                   implementationClass="dev.avinlang.intellij.AvinEditorHighlighterProvider"/>
+        <colorSettingsPage implementation="dev.avinlang.intellij.AvinColorSettingsPage"/>
+        <additionalTextAttributes scheme="Default" file="colorSchemes/AvinDefault.xml"/>
+        <additionalTextAttributes scheme="Darcula" file="colorSchemes/AvinDarcula.xml"/>
         <fileIconProvider implementation="dev.avinlang.intellij.AvinFileIconProvider" order="first"/>
         <applicationConfigurable parentId="language"
                                  instance="dev.avinlang.intellij.AvinConfigurable"
