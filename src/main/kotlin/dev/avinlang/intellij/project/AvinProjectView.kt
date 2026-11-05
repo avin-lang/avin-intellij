@@ -1,8 +1,6 @@
 package dev.avinlang.intellij.project
 
 import com.intellij.ide.projectView.PresentationData
-import com.intellij.ide.projectView.ProjectViewNode
-import com.intellij.ide.projectView.ProjectViewNodeDecorator
 import com.intellij.ide.projectView.TreeStructureProvider
 import com.intellij.ide.projectView.ViewSettings
 import com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode
@@ -92,6 +90,22 @@ class AvinModuleNode(
     override fun updateImpl(data: PresentationData) {
         super.updateImpl(data)
         data.presentableText = label
+        if (!isMarkedRoot()) data.setIcon(AvinIcons.MODULE)
+    }
+
+    /**
+     * Whether a directory of the chain is marked as a source or test folder, which keeps that
+     * folder's icon, so `tests` still reads as the test folder.
+     */
+    private fun isMarkedRoot(): Boolean {
+        val project = project ?: return false
+        val index = ProjectFileIndex.getInstance(project)
+        var dir: VirtualFile? = value?.takeIf { it.isValid }?.virtualFile ?: return false
+        while (dir != null && dir != from) {
+            if (index.getSourceRootForFile(dir) == dir) return true
+            dir = dir.parent
+        }
+        return false
     }
 
     override fun getTitle(): String = label
@@ -116,20 +130,5 @@ class AvinModuleNode(
         if (super.contains(file)) return true
         val end = value?.virtualFile ?: return false
         return file.isDirectory && VfsUtilCore.isAncestor(file, end, true) && VfsUtilCore.isAncestor(from, file, true)
-    }
-}
-
-/**
- * Gives Avin module directories the module icon, joined or not. A directory marked as a source or
- * test root keeps the root's icon, so `tests` still reads as the test folder.
- */
-class AvinModuleNodeDecorator : ProjectViewNodeDecorator {
-    override fun decorate(node: ProjectViewNode<*>, data: PresentationData) {
-        if (node !is PsiDirectoryNode) return
-        val dir = node.value?.takeIf { it.isValid }?.virtualFile ?: return
-        if (!isModuleDirectory(dir)) return
-        val project = node.project ?: return
-        if (ProjectFileIndex.getInstance(project).getSourceRootForFile(dir) == dir) return
-        data.setIcon(AvinIcons.MODULE)
     }
 }

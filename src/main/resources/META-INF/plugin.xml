@@ -54,7 +54,6 @@
                                         implementationClass="dev.avinlang.intellij.run.AvinRunLineMarkerProvider"/>
         <postStartupActivity implementation="dev.avinlang.intellij.project.AvinProjectActivity"/>
         <treeStructureProvider implementation="dev.avinlang.intellij.project.AvinModuleTreeStructureProvider"/>
-        <projectViewNodeDecorator implementation="dev.avinlang.intellij.project.AvinModuleNodeDecorator"/>
         <internalFileTemplate name="Avin File"/>
         <internalFileTemplate name="Avin Test File"/>
         <newProjectWizard.languageGenerator implementation="dev.avinlang.intellij.project.AvinNewProjectWizard"/>

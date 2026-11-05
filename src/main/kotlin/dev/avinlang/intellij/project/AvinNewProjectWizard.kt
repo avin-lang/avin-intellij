@@ -1,11 +1,9 @@
 package dev.avinlang.intellij.project
 
-import com.intellij.ide.util.projectWizard.ModuleBuilder
 import com.intellij.ide.wizard.AbstractNewProjectWizardStep
 import com.intellij.ide.wizard.NewProjectWizardBaseData.Companion.baseData
 import com.intellij.ide.wizard.NewProjectWizardStep
 import com.intellij.ide.wizard.language.LanguageGeneratorNewProjectWizard
-import com.intellij.ide.wizard.setupProjectFromBuilder
 import com.intellij.openapi.module.ModuleTypeManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.LocalFileSystem
@@ -62,11 +60,9 @@ class AvinProjectStep(parent: NewProjectWizardStep) : AbstractNewProjectWizardSt
         writeAvinPackage(root, packageNameProperty.get(), kindProperty.get(), descriptionProperty.get())
         LocalFileSystem.getInstance().refreshAndFindFileByIoFile(root)?.refresh(false, true)
         val builder = ModuleTypeManager.getInstance().findByID(GENERAL_MODULE).createModuleBuilder()
-        (builder as? ModuleBuilder)?.let {
-            it.name = base.name
-            it.contentEntryPath = base.contentEntryPath
-        }
-        setupProjectFromBuilder(project, builder)
+        builder.name = base.name
+        builder.contentEntryPath = base.contentEntryPath
+        builder.commit(project)
         AvinProjectModel.scheduleConfigure(project)
     }
 

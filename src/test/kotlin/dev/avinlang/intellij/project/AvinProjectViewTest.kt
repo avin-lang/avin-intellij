@@ -1,18 +1,18 @@
 package dev.avinlang.intellij.project
 
-import com.intellij.ide.projectView.PresentationData
 import com.intellij.ide.projectView.TreeStructureProvider
 import com.intellij.ide.projectView.ViewSettings
 import com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode
 import com.intellij.ide.util.treeView.AbstractTreeNode
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
+import com.intellij.openapi.vfs.VfsUtilCore
+import com.intellij.testFramework.PsiTestUtil
 import dev.avinlang.intellij.AvinIcons
 
 /** Chains of module directories are shown on one line with the module icon. */
 class AvinProjectViewTest : BasePlatformTestCase() {
     private val provider = AvinModuleTreeStructureProvider()
-    private val decorator = AvinModuleNodeDecorator()
 
     private val manifest = "package {\n  name = \"p\"\n  version = \"0.1.0\"\n}\n"
 
@@ -35,7 +35,11 @@ class AvinProjectViewTest : BasePlatformTestCase() {
         return node.presentation.presentableText ?: ""
     }
 
-    private fun icon(node: PsiDirectoryNode) = PresentationData().also { decorator.decorate(node, it) }.getIcon(false)
+    /** The icon [dir] is shown with under its parent, or null when it is not the module icon's. */
+    private fun icon(dir: VirtualFile) = shown(dir.parent).filterIsInstance<PsiDirectoryNode>()
+        .single { it.value.virtualFile == dir || VfsUtilCore.isAncestor(dir, it.value.virtualFile, false) }
+        .let { it.update(); it.presentation.getIcon(false) }
+        .takeIf { it === AvinIcons.MODULE }
 
     fun `test a chain of modules is shown as one dotted node`() {
         val root = file("pkg/avin.hocon", manifest).parent
@@ -76,21 +80,23 @@ class AvinProjectViewTest : BasePlatformTestCase() {
         val child = shown(root).filterIsInstance<PsiDirectoryNode>().single()
         assertEquals("shapes", label(child))
         assertEquals(root.findChild("shapes"), child.value.virtualFile)
-        assertSame(AvinIcons.MODULE, icon(child))
+        assertSame(AvinIcons.MODULE, icon(child.value.virtualFile))
     }
 
     fun `test the joined node has the module icon`() {
         val root = file("pkg/avin.hocon", manifest).parent
         file("pkg/a/b/x.avin")
         val joined = shown(root).filterIsInstance<AvinModuleNode>().single()
-        assertSame(AvinIcons.MODULE, icon(joined))
+        assertSame(AvinIcons.MODULE, icon(root.findChild("a")!!))
+        assertNotNull(joined)
     }
 
     fun `test the package root is not a module and keeps its look`() {
         val root = file("pkg/avin.hocon", manifest).parent
         file("pkg/a/b/x.avin")
         val rootNode = node(root)
-        assertNull(icon(rootNode))
+        assertNull(icon(root))
+        assertNotNull(rootNode)
         val shownAtTop = provider.modify(node(root.parent), node(root.parent).children, ViewSettings.DEFAULT)
         assertEquals("pkg", label(shownAtTop.filterIsInstance<PsiDirectoryNode>().single { it.value.virtualFile == root }))
     }
@@ -108,7 +114,7 @@ class AvinProjectViewTest : BasePlatformTestCase() {
         file("pkg/a/inner/main.avin")
         assertTrue(labels(root).contains("a"))
         val inner = root.findFileByRelativePath("a/inner")!!
-        assertNull(icon(node(inner)))
+        assertNull(icon(inner))
     }
 
     fun `test a directory that is not a module name is not joined`() {
@@ -116,7 +122,7 @@ class AvinProjectViewTest : BasePlatformTestCase() {
         file("pkg/a/my-dir/x.avin")
         file("pkg/vendor/dep/d/x.avin")
         assertEquals(listOf("a", "avin.hocon", "vendor"), labels(root))
-        assertNull(icon(node(root.findFileByRelativePath("vendor")!!)))
+        assertNull(icon(root.findFileByRelativePath("vendor")!!))
     }
 
     fun `test unicode directory names are joined`() {
@@ -130,7 +136,7 @@ class AvinProjectViewTest : BasePlatformTestCase() {
         val parent = node(top)
         val children = parent.children
         assertSame(children, provider.modify(parent, children, ViewSettings.DEFAULT))
-        assertNull(icon(node(top.findChild("a")!!)))
+        assertNull(icon(top.findChild("a")!!))
     }
 
     fun `test an empty package shows nothing new`() {
@@ -168,6 +174,20 @@ class AvinProjectViewTest : BasePlatformTestCase() {
             assertEquals("hide=$hide", listOf("a.b", "avin.hocon", "c.d"), shownTop)
             val bNode = PsiDirectoryNode(project, psiManager.findDirectory(b)!!, settings)
             assertEquals("hide=$hide", listOf("x", "y"), provider.modify(bNode, bNode.children, settings).map { label(it) }.sorted())
+        }
+    }
+
+    fun `test a module marked as a test folder keeps the test folder's icon`() {
+        val root = file("pkg/avin.hocon", manifest).parent
+        file("pkg/tests/t.avin")
+        file("pkg/shapes/s.avin")
+        val tests = root.findChild("tests")!!
+        PsiTestUtil.addSourceRoot(module, tests, true)
+        try {
+            assertNull(icon(tests))
+            assertSame(AvinIcons.MODULE, icon(root.findChild("shapes")!!))
+        } finally {
+            PsiTestUtil.removeSourceRoot(module, tests)
         }
     }
 

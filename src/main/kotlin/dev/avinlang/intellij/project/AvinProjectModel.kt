@@ -2,8 +2,8 @@ package dev.avinlang.intellij.project
 
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.ModalityState
-import com.intellij.openapi.application.ReadAction
 import com.intellij.openapi.application.WriteAction
+import com.intellij.openapi.application.runReadActionBlocking
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.project.Project
@@ -126,7 +126,7 @@ object AvinProjectModel {
     /** Recognises [project]'s packages now. Call on the event dispatch thread. */
     fun configure(project: Project) {
         if (project.isDisposed) return
-        val plan = ReadAction.compute<Map<Module, List<AvinRootLayout>>, RuntimeException> { plan(project) }
+        val plan = runReadActionBlocking { plan(project) }
         if (plan.isNotEmpty()) WriteAction.run<RuntimeException> { apply(plan) }
     }
 
