@@ -12,6 +12,7 @@ import com.redhat.devtools.lsp4ij.LanguageServerFactory
 import com.redhat.devtools.lsp4ij.LanguageServerManager
 import com.redhat.devtools.lsp4ij.ServerStatus
 import com.redhat.devtools.lsp4ij.client.features.LSPClientFeatures
+import com.redhat.devtools.lsp4ij.client.features.LSPWorkspaceSymbolFeature
 import com.redhat.devtools.lsp4ij.server.CannotStartProcessException
 import com.redhat.devtools.lsp4ij.server.OSProcessStreamConnectionProvider
 import com.redhat.devtools.lsp4ij.server.StreamConnectionProvider
@@ -55,10 +56,25 @@ class AvinLanguageServerFactory : LanguageServerFactory {
 }
 
 /**
+ * Go to Symbol and Go to Class through `workspace/symbol`, once the server offers it: Go to Class
+ * lists the symbols that are types (classes, data types, traits, objects), Go to Symbol all of them.
+ */
+class AvinWorkspaceSymbolFeature : LSPWorkspaceSymbolFeature() {
+    override fun supportsGotoClass(): Boolean = true
+}
+
+/**
  * Leaves the server off, with a single notification, when its executable cannot be found; the
  * TextMate highlighting does not depend on it.
+ *
+ * The outline is LSP4IJ's, from the server's `textDocument/documentSymbol`: the Structure tool
+ * window, breadcrumbs and sticky lines; code folding is LSP4IJ's from `textDocument/foldingRange`.
  */
 class AvinClientFeatures : LSPClientFeatures() {
+    init {
+        workspaceSymbolFeature = AvinWorkspaceSymbolFeature()
+    }
+
     override fun isEnabled(file: VirtualFile): Boolean {
         val server = currentServerCommand()
         if (findExecutable(server.command, server.env, server.cwd) == null) {

@@ -25,6 +25,10 @@ indentation-based syntax.
 
 - Running programs and their tests: an **Avin** run configuration, ▶ in the gutter on `main` and on
   each `@test`, results in the test runner, and traps and diagnostics linked to the source
+- Build | Avin: `avin build`, `check`, `test` and `fmt` on a package, with a check's or a build's
+  diagnostics in the Problems view
+- The file's outline in the Structure tool window and the breadcrumbs, Go to Symbol and Go to
+  Class, and code folding, from the language server
 
 The plugin targets IntelliJ Platform 2026.2 (build 262) and later, and uses LSP4IJ 0.21.0 or later.
 
@@ -105,6 +109,43 @@ Diagnostics from a program that does not build are shown in the console as they 
 and a diagnostic's `--> <path>:<line>:<col>`, are links to the source. A trap names its file
 without a directory, so the file is looked for under the program's root.
 
+## Building, checking, testing and formatting
+
+Build | **Avin** holds four commands, also in the context menus of the project view and the
+editor:
+
+| Command | Runs | On |
+|---|---|---|
+| Build | `avin build <package>` | the package each selected file is in |
+| Check | `avin check <package>` | the package each selected file is in |
+| Test | `avin test <package>` | the package each selected file is in |
+| Format | `avin fmt <path>…` | the selected Avin files and directories as they are; any other selected file's package |
+
+A package is the nearest directory at or above the file holding `avin.hocon`. With nothing
+selected (and no file in the editor), the commands run on the project's packages: the project's
+directory when it holds `avin.hocon`, otherwise each package up to three levels below it. Several
+packages each get their own run; Format formats all its paths in one. A command with nothing to run
+on is disabled in the Build menu and left out of the context menus.
+
+The commands are invoked as the run configurations are (the server path, or the repository's
+compiler through `sysl run`), in the package's directory, after saving the editors. The output
+goes to a console in the Run tool window, with the places it names linked to the source. Test runs
+the package's tests as a temporary **Avin** run configuration, so the report fills the test runner.
+When a Check or a Build ends, its errors and warnings are listed in the Problems view's **Project
+Errors** tab, each at its file, line and column (a diagnostic that names no place is listed on its
+own); the next Check or Build of the package replaces them. Format reloads the files it rewrote.
+
+## Structure and navigation
+
+These come from the language server through LSP4IJ, which serves them for Avin files once the
+server announces them:
+
+- the Structure tool window and the breadcrumbs (and sticky lines), from `textDocument/documentSymbol`:
+  data types and their variants, classes, traits and objects with their fields and methods, `impl`
+  blocks, functions and values;
+- Navigate | Symbol and Navigate | Class, from `workspace/symbol` (Class lists the types);
+- code folding, from `textDocument/foldingRange`.
+
 ## How the grammar is sourced
 
 The grammar and the editor behaviour have one source: the Avin repository's
@@ -138,7 +179,9 @@ into `~/.gradle` if no JDK 21 is installed.
 - `test` runs the unit tests (how the server's and the run's command lines are built, finding `main`
   and the tests in a file's text, reading `avin test`'s report, places in output) and the platform
   tests (the bundle is found, `.avin` files get the grammar, comments, bracket closing and the icon;
-  the gutter's run icons, run configurations, console links, and a test run filling the test tree).
+  the gutter's run icons, run configurations, console links, and a test run filling the test tree;
+  the Build | Avin commands, what they run on, and their problems in the Problems view; the
+  outline, breadcrumbs, folding and Go to Symbol/Class wired to LSP4IJ).
 - `verifyPlugin` checks the zip against the recommended IDE releases with the IntelliJ Plugin Verifier.
 - `runIde` starts a sandbox IDE with the plugin and LSP4IJ installed.
 

@@ -17,6 +17,10 @@
       <li>Run configurations for <code>avin run</code> and <code>avin test</code>, with ▶ in the gutter
           on <code>main</code> and on each <code>@test</code>, test results in the test runner, and
           traps and diagnostics linked to the source in the console</li>
+      <li>Build | Avin: <code>avin build</code>, <code>check</code>, <code>test</code> and
+          <code>fmt</code> on a package, with a check's or a build's diagnostics in the Problems view</li>
+      <li>The outline in the Structure tool window and the breadcrumbs, Go to Symbol and Go to Class,
+          and code folding, from the language server</li>
       <li>Settings | Languages &amp; Frameworks | Avin chooses the server executable, or a checkout
           of the Avin repository to run it from</li>
     </ul>
@@ -49,6 +53,25 @@
         <codeInsight.lineMarkerProvider language="textmate"
                                         implementationClass="dev.avinlang.intellij.run.AvinRunLineMarkerProvider"/>
     </extensions>
+
+    <actions>
+        <group id="Avin.Tools" class="dev.avinlang.intellij.run.AvinToolGroup" text="Avin" description="Build, check, test or format Avin packages" popup="true"
+               icon="/icons/avin.svg">
+            <action id="Avin.Build" class="dev.avinlang.intellij.run.AvinBuildAction" text="Build"
+                    description="Run avin build on the package" icon="AllIcons.Actions.Compile"/>
+            <action id="Avin.Check" class="dev.avinlang.intellij.run.AvinCheckAction" text="Check"
+                    description="Run avin check on the package; its diagnostics go to the Problems view"
+                    icon="AllIcons.Actions.Checked"/>
+            <action id="Avin.Test" class="dev.avinlang.intellij.run.AvinTestAction" text="Test"
+                    description="Run avin test on the package" icon="AllIcons.RunConfigurations.TestState.Run"/>
+            <action id="Avin.Format" class="dev.avinlang.intellij.run.AvinFormatAction" text="Format"
+                    description="Run avin fmt on the selected files and directories, or the package"
+                    icon="AllIcons.Actions.ReformatCode"/>
+            <add-to-group group-id="BuildMenu" anchor="last"/>
+            <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
+            <add-to-group group-id="EditorPopupMenu" anchor="last"/>
+        </group>
+    </actions>
 
     <extensions defaultExtensionNs="com.redhat.devtools.lsp4ij">
         <server id="avinLanguageServer"
