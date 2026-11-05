@@ -1,0 +1,7 @@
+#if (${MODULE} != "")
+module ${MODULE}
+
+#end
+@test("a sample test")
+sampleTest()
+    assertEq(1 + 1, 2)

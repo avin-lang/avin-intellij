@@ -21,6 +21,10 @@
           <code>fmt</code> on a package, with a check's or a build's diagnostics in the Problems view</li>
       <li>The outline in the Structure tool window and the breadcrumbs, Go to Symbol and Go to Class,
           and code folding, from the language server</li>
+      <li>Avin projects: a New Project wizard entry for a program or a library, packages recognised
+          by their <code>avin.hocon</code> (sources, tests and build output marked), chains of
+          module directories shown on one line as <code>a.b.c</code> with the module icon, and
+          New | Avin File (or test file) and New | Avin Module, headed with their module</li>
       <li>Settings | Languages &amp; Frameworks | Avin chooses the server executable, or a checkout
           of the Avin repository to run it from</li>
     </ul>
@@ -52,7 +56,17 @@
         <runConfigurationProducer implementation="dev.avinlang.intellij.run.AvinRunConfigurationProducer"/>
         <codeInsight.lineMarkerProvider language="textmate"
                                         implementationClass="dev.avinlang.intellij.run.AvinRunLineMarkerProvider"/>
+        <postStartupActivity implementation="dev.avinlang.intellij.project.AvinProjectActivity"/>
+        <treeStructureProvider implementation="dev.avinlang.intellij.project.AvinModuleTreeStructureProvider"/>
+        <internalFileTemplate name="Avin File"/>
+        <internalFileTemplate name="Avin Test File"/>
+        <newProjectWizard.languageGenerator implementation="dev.avinlang.intellij.project.AvinNewProjectWizard"/>
     </extensions>
+
+    <projectListeners>
+        <listener class="dev.avinlang.intellij.project.AvinManifestListener"
+                  topic="com.intellij.openapi.vfs.newvfs.BulkFileListener"/>
+    </projectListeners>
 
     <actions>
         <group id="Avin.Tools" class="dev.avinlang.intellij.run.AvinToolGroup" text="Avin" description="Build, check, test or format Avin packages" popup="true"
@@ -71,6 +85,14 @@
             <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
             <add-to-group group-id="EditorPopupMenu" anchor="last"/>
         </group>
+        <action id="Avin.NewFile" class="dev.avinlang.intellij.project.CreateAvinFileAction"
+                text="Avin File" description="Creates an Avin file headed with its module">
+            <add-to-group group-id="NewGroup" anchor="before" relative-to-action="NewFile"/>
+        </action>
+        <action id="Avin.NewModule" class="dev.avinlang.intellij.project.CreateAvinModuleAction"
+                text="Avin Module" description="Creates an Avin module: its directory and a first file">
+            <add-to-group group-id="NewGroup" anchor="after" relative-to-action="Avin.NewFile"/>
+        </action>
     </actions>
 
     <extensions defaultExtensionNs="com.redhat.devtools.lsp4ij">
