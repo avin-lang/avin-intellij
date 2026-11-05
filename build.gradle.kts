@@ -76,3 +76,35 @@ tasks.prepareTestSandbox {
         into(intellijPlatform.projectName.map { "$it/textmate/avin" })
     }
 }
+
+// The Sysl bundle: the grammar is the Sysl repository's own file, copied here at build time; the
+// manifest and language configuration are this plugin's (src/main/textmate/sysl).
+val syslGrammarDir: Directory = layout.projectDirectory.dir(providers.gradleProperty("syslGrammarDir").get())
+
+val syslBundle = tasks.register<Sync>("syslBundle") {
+    description = "Copies the Sysl TextMate grammar, with this plugin's manifest and language configuration, into the plugin."
+    val grammarDir = syslGrammarDir
+    val grammar = grammarDir.file("sysl.tmLanguage.json")
+    doFirst {
+        check(grammar.asFile.isFile) {
+            "No sysl.tmLanguage.json under ${grammarDir.asFile}:set -PsyslGrammarDir to the Sysl repository's docs/grammars directory."
+        }
+    }
+    from(layout.projectDirectory.dir("src/main/textmate/sysl"))
+    from(grammar) {
+        into("syntaxes")
+    }
+    into(layout.buildDirectory.dir("textmate/sysl"))
+}
+
+tasks.prepareSandbox {
+    from(syslBundle) {
+        into(intellijPlatform.projectName.map { "$it/textmate/sysl" })
+    }
+}
+
+tasks.prepareTestSandbox {
+    from(syslBundle) {
+        into(intellijPlatform.projectName.map { "$it/textmate/sysl" })
+    }
+}

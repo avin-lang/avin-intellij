@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 512 512" role="img" aria-label="Sysl">
+<rect width="512" height="512" rx="96" fill="#6f1f9e"/>
+<g transform="translate(106 81)">
+<path fill="#ffffff" d="M300 0 239 60H70V140H210Q239 140 260 160Q280 181 280 210V280Q280 309 260 330Q239 350 210 350H0V290H210V200H70Q41 200 20 180Q0 159 0 130V70Q0 41 20 20Q41 0 70 0Z"/>
+</g>
+</svg>

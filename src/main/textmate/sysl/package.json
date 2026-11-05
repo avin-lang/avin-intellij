@@ -1,0 +1,21 @@
+{
+  "name": "sysl",
+  "displayName": "Sysl",
+  "contributes": {
+    "languages": [
+      {
+        "id": "sysl",
+        "aliases": ["Sysl", "sysl"],
+        "extensions": [".sysl"],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "sysl",
+        "scopeName": "source.sysl",
+        "path": "./syntaxes/sysl.tmLanguage.json"
+      }
+    ]
+  }
+}

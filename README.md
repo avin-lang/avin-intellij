@@ -14,6 +14,11 @@ indentation-based syntax.
   strikethrough, inline code, fenced block, link, list marker, block quote, horizontal rule); the
   code keeps exactly the colours of Avin code
 - The Avin icon on `.avin` and `.lavin` files
+- Sysl (`.sysl`) files, which Avin projects contain (the runtime, bindings, test packages): syntax
+  highlighting from the Sysl repository's TextMate grammar (copied into the plugin at build time from
+  `syslGrammarDir`, default `../sysl-lang/sysl/docs/grammars`; override with `-PsyslGrammarDir=<dir>`),
+  `//` and `/* */` comments, bracket closing, the Sysl icon, and the Sysl language server
+  (`sysl lsp --stdio`, `sysl` found on the `PATH`) through LSP4IJ
 - The Avin language server (`avin lsp --stdio`) through [LSP4IJ](https://github.com/redhat-developer/lsp4ij):
   diagnostics, hover, go to definition and the file structure, and whatever else the server offers
   as it grows

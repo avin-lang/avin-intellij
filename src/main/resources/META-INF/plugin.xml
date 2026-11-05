@@ -10,6 +10,8 @@
           for <code>.avin</code> files, and for literate <code>.lavin</code> files (Markdown prose
           with the indented code in Avin); the prose has colours of its own, set in Settings | Editor |
           Color Scheme | Avin, and the program keeps the colours of Avin code</li>
+      <li>Syntax highlighting, comments, brackets, the Sysl icon and the Sysl language server
+          (<code>sysl lsp --stdio</code>) for <code>.sysl</code> files, which Avin projects contain</li>
       <li>The Avin language server (<code>avin lsp --stdio</code>) through LSP4IJ: diagnostics,
           hover, go to definition and the file structure</li>
       <li>Run configurations for <code>avin run</code> and <code>avin test</code>, with ▶ in the gutter
@@ -57,6 +59,17 @@
             the Avin repository (Settings | Languages &amp; Frameworks | Avin).
             ]]></description>
         </server>
+        <server id="syslLanguageServer"
+                name="Sysl"
+                factoryClass="dev.avinlang.intellij.SyslLanguageServerFactory">
+            <description><![CDATA[
+            The Sysl language server, started as <code>sysl lsp --stdio</code> with <code>sysl</code>
+            found on the PATH.
+            ]]></description>
+        </server>
+        <fileNamePatternMapping patterns="*.sysl"
+                                serverId="syslLanguageServer"
+                                languageId="sysl"/>
         <fileNamePatternMapping patterns="*.avin"
                                 serverId="avinLanguageServer"
                                 languageId="avin"/>

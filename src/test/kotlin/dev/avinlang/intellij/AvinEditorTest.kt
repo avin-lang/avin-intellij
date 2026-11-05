@@ -2,6 +2,7 @@ package dev.avinlang.intellij
 
 import com.intellij.ide.FileIconProvider
 import com.intellij.openapi.actionSystem.IdeActions
+import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import org.jetbrains.plugins.textmate.TextMateFileType
 import org.jetbrains.plugins.textmate.TextMateService
@@ -68,6 +69,40 @@ class AvinEditorTest : BasePlatformTestCase() {
         val file = myFixture.configureByText("notes.lavin", "").virtualFile
         val icons = FileIconProvider.EP_NAME.extensionList.mapNotNull { it.getIcon(file, 0, project) }
         assertSame(AvinIcons.FILE, icons.first())
+    }
+
+    fun `test a sysl file is highlighted by the Sysl grammar`() {
+        val descriptor = TextMateService.getInstance().getLanguageDescriptorByExtension("sysl")
+        assertNotNull("no TextMate language for .sysl", descriptor)
+        assertEquals("source.sysl", descriptor!!.rootScopeName.toString())
+        val text = "// note\nmain() =\n    while true do\n        break\n"
+        val file = myFixture.configureByText("main.sysl", text)
+        assertEquals(TextMateFileType.INSTANCE, file.virtualFile.fileType)
+        val scopes = HashMap<String, List<String>>()
+        val it = (myFixture.editor as EditorEx).highlighter.createIterator(0)
+        while (!it.atEnd()) {
+            scopes[text.substring(it.start, it.end).trim()] = scopesOf(it.tokenType)
+            it.advance()
+        }
+        assertTrue(scopes.toString(), scopes["while"].orEmpty().any { it.startsWith("keyword.control") })
+        assertTrue(scopes.toString(), scopes.entries.any { (k, v) -> k.contains("note") && v.any { it.startsWith("comment.line") } })
+        assertTrue(scopes.getValue("while").none { it.contains("avin") })
+    }
+
+    fun `test the sysl line and block comments`() {
+        myFixture.configureByText("main.sysl", "<caret>x = 1\n")
+        myFixture.performEditorAction(IdeActions.ACTION_COMMENT_LINE)
+        assertEquals("// x = 1\n", myFixture.editor.document.text)
+        myFixture.configureByText("b.sysl", "<selection>x = 1</selection>\n")
+        myFixture.performEditorAction(IdeActions.ACTION_COMMENT_BLOCK)
+        assertEquals("/* x = 1 */\n", myFixture.editor.document.text)
+    }
+
+    fun `test a sysl file has the Sysl icon and no other file gets it`() {
+        val file = myFixture.configureByText("main.sysl", "").virtualFile
+        val icons = FileIconProvider.EP_NAME.extensionList.mapNotNull { it.getIcon(file, 0, project) }
+        assertSame(AvinIcons.SYSL, icons.first())
+        assertNotSame(AvinIcons.SYSL, AvinIcons.FILE)
     }
 
     fun `test an avin file has the Avin icon`() {

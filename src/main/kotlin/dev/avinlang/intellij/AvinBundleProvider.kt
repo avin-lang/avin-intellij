@@ -19,8 +19,10 @@ class AvinBundleProvider : TextMateBundleProvider, PluginAware {
     }
 
     override fun getBundles(): List<TextMateBundleProvider.PluginBundle> {
-        val bundle = plugin?.pluginPath?.resolve("textmate")?.resolve("avin") ?: return emptyList()
-        if (!Files.isDirectory(bundle)) return emptyList()
-        return listOf(TextMateBundleProvider.PluginBundle("Avin", bundle))
+        val textmate = plugin?.pluginPath?.resolve("textmate") ?: return emptyList()
+        return listOf("Avin" to "avin", "Sysl" to "sysl").mapNotNull { (name, dir) ->
+            val bundle = textmate.resolve(dir)
+            if (Files.isDirectory(bundle)) TextMateBundleProvider.PluginBundle(name, bundle) else null
+        }
     }
 }
