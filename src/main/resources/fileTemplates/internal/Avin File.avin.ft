@@ -1,0 +1,4 @@
+#if (${MODULE} != "")
+module ${MODULE}
+
+#end

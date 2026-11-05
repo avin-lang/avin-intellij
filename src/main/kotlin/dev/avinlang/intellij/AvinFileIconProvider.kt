@@ -25,4 +25,8 @@ object AvinIcons {
 
     @JvmField
     val SYSL: Icon = IconLoader.getIcon("/icons/sysl.svg", AvinIcons::class.java)
+
+    /** An Avin module: a directory of an Avin package, shown in the project view. */
+    @JvmField
+    val MODULE: Icon = IconLoader.getIcon("/icons/avinModule.svg", AvinIcons::class.java)
 }

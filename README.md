@@ -26,6 +26,9 @@ indentation-based syntax.
 - Running programs and their tests: an **Avin** run configuration, ▶ in the gutter on `main` and on
   each `@test`, results in the test runner, and traps and diagnostics linked to the source
 
+- Avin projects: a New Project wizard entry, packages recognised by their `avin.hocon`, chains of
+  module directories shown on one line, and New | Avin File and Avin Module (below)
+
 The plugin targets IntelliJ Platform 2026.2 (build 262) and later, and uses LSP4IJ 0.21.0 or later.
 
 ## Changes
@@ -105,6 +108,45 @@ Diagnostics from a program that does not build are shown in the console as they 
 and a diagnostic's `--> <path>:<line>:<col>`, are links to the source. A trap names its file
 without a directory, so the file is looked for under the program's root.
 
+## Projects and modules
+
+**New Project.** File | New | Project… lists **Avin** among the languages. It writes a package as
+`avin new` does: `avin.hocon` (the package's name and version `0.1.0`, a description if one is
+given, and an empty `dependencies` block), a module named after the package (`-` written `_`)
+holding one function, `main.avin` using it for a program (a library has none), a test of it in
+`tests/`, and a `.gitignore` naming `.avin/` (added to the one the wizard's Git option makes). The
+package name is made from the project's name and can be changed; it must be what `avin new` accepts.
+
+**Recognising packages.** When a project opens, and whenever a manifest appears in it, every
+directory under a content root holding `avin.hocon` is marked in its module: the directory as a
+source folder, its `tests` as a test source folder, and its `.avin` (what building leaves) as
+excluded, as is the `.sysl` working directory beside any `sysl.hocon` in the package. A
+workspace's root (a manifest with no `package` block) gets only its `.avin` excluded; its members
+are packages of their own. Several packages in one window are each marked. `vendor/`, `.git` and
+build output are not searched. Folders already marked are kept, and nothing is unmarked.
+
+**Modules in the Project view.** A directory of a package is a module (`shapes/solid` is
+`shapes.solid`) and has the module icon, unless it is marked as a source or test folder (`tests`
+keeps the test folder's icon). A chain of module directories in which each holds nothing but the
+next is shown as one node with the dotted path, `dev/avinlang/parsing` as `dev.avinlang.parsing`; a
+directory holding a file, or more than one directory, ends the chain, as does a directory holding
+its own `avin.hocon` (another package). Hidden entries such as `.DS_Store` do not count. This is
+always on, and inside a package it takes the place of the IDE's Compact Middle Packages option,
+which joins by other languages' rules (it would show `a.b.x` and `a.b.y` where Avin shows `a.b`
+holding `x` and `y`), so the view is the same whichever way that option is set. A directory whose name is not a module name (`my-dir`), `vendor/` and the
+package's root are shown as they are.
+
+**New files.** In the Project view's New menu:
+
+- **Avin File** asks for a name and a kind, *File* or *Test file*. The file is headed
+  `module a.b` from its directory's path under the package's root; a file in the root, or outside
+  any package, has no header. A test file holds a sample `@test`. The templates are Settings |
+  Editor | File and Code Templates | Other | *Avin File* and *Avin Test File*, whose `${MODULE}` is
+  the module's dotted name, empty in the root.
+- **Avin Module** asks for a module's name, dotted for several levels (`shapes.solid`), creates its
+  directories under the chosen one, and a first file named after its last name, headed with the
+  module's full name.
+
 ## How the grammar is sourced
 
 The grammar and the editor behaviour have one source: the Avin repository's
@@ -138,7 +180,10 @@ into `~/.gradle` if no JDK 21 is installed.
 - `test` runs the unit tests (how the server's and the run's command lines are built, finding `main`
   and the tests in a file's text, reading `avin test`'s report, places in output) and the platform
   tests (the bundle is found, `.avin` files get the grammar, comments, bracket closing and the icon;
-  the gutter's run icons, run configurations, console links, and a test run filling the test tree).
+  the gutter's run icons, run configurations, console links, and a test run filling the test tree;
+  packages recognised and their folders marked, module chains joined in the Project view, the New
+  file templates and the wizard's files, which are checked with `avin check` when `avin` is
+  installed).
 - `verifyPlugin` checks the zip against the recommended IDE releases with the IntelliJ Plugin Verifier.
 - `runIde` starts a sandbox IDE with the plugin and LSP4IJ installed.
 
