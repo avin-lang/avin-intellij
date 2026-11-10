@@ -89,6 +89,24 @@ class AvinEditorTest : BasePlatformTestCase() {
         assertTrue(scopes.getValue("while").none { it.contains("avin") })
     }
 
+    fun `test an avin file highlights type aliases, export, with and placeholder lambdas`() {
+        val text = "type Parsed[T] = Result[T, string]\nexport geo.inner.{Box, area as surface}\n" +
+            "val moved = p with { x = 3 }\nval doubled = xs.map(_ * 2)\nval u: int | string = 1\n"
+        val file = myFixture.configureByText("main.avin", text)
+        assertEquals(TextMateFileType.INSTANCE, file.virtualFile.fileType)
+        val scopes = HashMap<String, List<String>>()
+        val it = (myFixture.editor as EditorEx).highlighter.createIterator(0)
+        while (!it.atEnd()) {
+            scopes.putIfAbsent(text.substring(it.start, it.end).trim(), scopesOf(it.tokenType))
+            it.advance()
+        }
+        assertTrue(scopes.toString(), scopes.getValue("type").any { it.startsWith("keyword.declaration") })
+        assertTrue(scopes.toString(), scopes.getValue("Parsed").any { it.startsWith("entity.name.type") })
+        assertTrue(scopes.toString(), scopes.getValue("export").any { it.startsWith("keyword.control.import") })
+        assertTrue(scopes.toString(), scopes.getValue("with").any { it.startsWith("keyword.operator.word") })
+        assertTrue(scopes.toString(), scopes.getValue("_").any { it.startsWith("variable.language.placeholder") })
+    }
+
     fun `test the sysl line and block comments`() {
         myFixture.configureByText("main.sysl", "<caret>x = 1\n")
         myFixture.performEditorAction(IdeActions.ACTION_COMMENT_LINE)

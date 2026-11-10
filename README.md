@@ -5,6 +5,9 @@ Avin is a natively compiled, garbage-collected application language with a light
 indentation-based syntax.
 
 - Syntax highlighting for `.avin` files, from the Avin TextMate grammar
+  The grammar covers `type` aliases, `export` re-exports, the `with { … }` update tail, `_`
+  placeholders in a call's lambda arguments, `derives Enumerable` and union types `A | B`; hover,
+  definition, completion and the outline for them come from the language server
 - Bracket matching, auto-closing brackets and quotes, and `//` line comments (Code | Comment with
   Line Comment), from the Avin language configuration
 - Literate Avin (`.lavin`) files: a Markdown document whose lines indented four columns are Avin
