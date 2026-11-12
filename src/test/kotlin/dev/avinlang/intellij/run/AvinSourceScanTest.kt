@@ -37,6 +37,26 @@ class AvinSourceScanTest {
     }
 
     @Test
+    fun `def before main or a test function is accepted, after any modifiers`() {
+        val source = "def main() =\n    println(1)\n\n@test\ndef first()\n    assert(true)\n\n@test(\"second\")\nprivate def second(n: int)\n    assert(true)\n\ndef mainly() = 1\n  def main()\n"
+        assertEquals(
+            listOf(MainTarget(0), TestTarget(4, "first", "first"), TestTarget(8, "second", "second")),
+            scanRunTargets("d.avin", source),
+        )
+    }
+
+    @Test
+    fun `def main without a parameter list is main`() {
+        assertEquals(listOf(MainTarget(0)), scanRunTargets("d.avin", "def main -> unit = println(1)\n"))
+    }
+
+    @Test
+    fun `def inside a literate file's program is read the same way`() {
+        val source = "# T\n\n    def main() =\n        println(1)\n"
+        assertEquals(listOf(MainTarget(2)), scanRunTargets("d.lavin", source))
+    }
+
+    @Test
     fun `blank lines, comments and other annotations may stand between @test and the declaration`() {
         val source = "@test(\"a \\\"quoted\\\" name\")  // why\n\n// note\n@slow\nquoted()\n    assert(true)\n"
         assertEquals(listOf(TestTarget(4, "a \"quoted\" name", "quoted")), scanRunTargets("t.avin", source))

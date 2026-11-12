@@ -14,9 +14,10 @@ data class MainTarget(override val line: Int) : RunTarget
  */
 data class TestTarget(override val line: Int, val name: String, val function: String) : RunTarget
 
-private val MAIN = Regex("""^main\(""")
+private const val MODIFIERS = """(?:(?:private|override|open|abstract|static|lazy)\s+)"""
+private val MAIN = Regex("""^(?:$MODIFIERS*def\s+main\b|main\()""")
 private val TEST = Regex("""^@test\s*(?:\(\s*"((?:[^"\\]|\\.)*)"\s*\))?\s*(?://.*)?$""")
-private val DECLARATION = Regex("""^([A-Za-z_][A-Za-z0-9_]*)\s*\(""")
+private val DECLARATION = Regex("""^(?:$MODIFIERS*def\s+([A-Za-z_][A-Za-z0-9_]*)|([A-Za-z_][A-Za-z0-9_]*)\s*\()""")
 private val FENCE = Regex("""^ {0,3}(```|~~~)""")
 
 /** The column a literate file's program lines are indented to. */
@@ -27,9 +28,9 @@ private const val LITERATE_INDENT = 4
  * syntax tree for Avin. A line is program text at column 0 in a `.avin` file, and at column 4 in a
  * `.lavin` file outside a fenced block (prose lines are skipped). On program text:
  *
- * - `main(` at the start of a line is the top-level `main`;
- * - a line that is `@test` or `@test("a sentence")` marks the next declaration, `name(` at the
- *   start of a later line, skipping blank lines, comments and other annotations; anything else
+ * - `main(` or `def main` at the start of a line is the top-level `main`;
+ * - a line that is `@test` or `@test("a sentence")` marks the next declaration, `name(` or `def name` (after any
+ *   modifiers) at the start of a later line, skipping blank lines, comments and other annotations; anything else
  *   between them cancels the mark.
  */
 fun scanRunTargets(fileName: String, text: CharSequence): List<RunTarget> {
@@ -66,7 +67,7 @@ fun scanRunTargets(fileName: String, text: CharSequence): List<RunTarget> {
         if (code.startsWith("//") || code.startsWith("@")) continue
         val declaration = DECLARATION.find(code)
         if (declaration != null) {
-            val function = declaration.groupValues[1]
+            val function = declaration.groupValues[1].ifEmpty { declaration.groupValues[2] }
             targets += TestTarget(index, pendingSentence ?: function, function)
         }
         pending = false
