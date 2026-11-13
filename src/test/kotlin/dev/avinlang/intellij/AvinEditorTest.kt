@@ -107,6 +107,20 @@ class AvinEditorTest : BasePlatformTestCase() {
         assertTrue(scopes.toString(), scopes.getValue("_").any { it.startsWith("variable.language.placeholder") })
     }
 
+    fun `test an avin file highlights def and defer as keywords`() {
+        val text = "def area(w: int) -> int = w\nmain() =\n    defer close()\n    val defers = 1\n"
+        myFixture.configureByText("main.avin", text)
+        val scopes = HashMap<String, List<String>>()
+        val it = (myFixture.editor as EditorEx).highlighter.createIterator(0)
+        while (!it.atEnd()) {
+            scopes.putIfAbsent(text.substring(it.start, it.end).trim(), scopesOf(it.tokenType))
+            it.advance()
+        }
+        assertTrue(scopes.toString(), scopes.getValue("def").any { it.startsWith("keyword.declaration") })
+        assertTrue(scopes.toString(), scopes.getValue("defer").any { it.startsWith("keyword.control") })
+        assertTrue(scopes.toString(), scopes.getValue("defers").none { it.startsWith("keyword") })
+    }
+
     fun `test the sysl line and block comments`() {
         myFixture.configureByText("main.sysl", "<caret>x = 1\n")
         myFixture.performEditorAction(IdeActions.ACTION_COMMENT_LINE)
