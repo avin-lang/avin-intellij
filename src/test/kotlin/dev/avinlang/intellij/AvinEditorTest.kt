@@ -213,6 +213,44 @@ class AvinEditorTest : BasePlatformTestCase() {
         assertKeyword(text, 14, "override")
     }
 
+    fun `test constructor parameters' holes and variance, _ type arguments, and nested type brackets`() {
+        val text = listOf(
+            "pairUp[F[_], A, G[+_, -_]](fa: F[A]) -> F[(A, A)] = fa",
+            "impl[F[_]: Pointed, A] F[A]",
+            "  again() -> F[A] = F.pure(peek())",
+            "val x = same[Result[_, E], int](Ok(1))",
+            "data Option[+T]",
+            "val doubled = xs.map(_ * 2)",
+            "",
+        ).joinToString("\n")
+        myFixture.configureByText("main.avin", text)
+        fun scopesAt(line: Int, column: Int): List<String> {
+            val offset = text.lines().take(line - 1).sumOf { it.length + 1 } + column
+            return scopesOf((myFixture.editor as EditorEx).highlighter.createIterator(offset).tokenType)
+        }
+        fun assertScope(line: Int, column: Int, scope: String) {
+            val scopes = scopesAt(line, column)
+            assertTrue("line $line column $column: $scopes", scopes.any { it.startsWith(scope) })
+        }
+        assertScope(1, 0, "entity.name.function")
+        assertScope(1, 9, "variable.language.hole")
+        assertScope(1, 18, "storage.modifier.variance")
+        assertScope(1, 19, "variable.language.hole")
+        assertScope(1, 22, "storage.modifier.variance")
+        assertScope(1, 23, "variable.language.hole")
+        assertKeyword(text, 2, "impl")
+        assertScope(2, 7, "variable.language.hole")
+        assertScope(2, 11, "entity.name.type")
+        assertScope(3, 2, "entity.name.function")
+        assertScope(3, 22, "entity.name.function.call")
+        assertScope(4, 8, "entity.name.function.call")
+        assertScope(4, 20, "variable.language.hole")
+        assertScope(5, 12, "storage.modifier.variance")
+        // A `_` in a call's arguments stays a lambda placeholder.
+        assertScope(6, 21, "variable.language.placeholder")
+        assertTrue(scopesAt(6, 21).toString(), scopesAt(6, 21).none { it.startsWith("variable.language.hole") })
+    }
+
     fun `test impl with type parameters before a type is an impl`() {
         val text = "impl[A] Named for Box[A]\nimpl[A, B] (A, B)\n"
         myFixture.configureByText("main.avin", text)

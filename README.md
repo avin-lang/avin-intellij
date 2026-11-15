@@ -6,7 +6,10 @@ indentation-based syntax.
 
 - Syntax highlighting for `.avin` files, from the Avin TextMate grammar
   The grammar covers `type` aliases, `export` re-exports, the `with { … }` update tail, `_`
-  placeholders in a call's lambda arguments, `derives Enumerable` and union types `A | B`; hover,
+  placeholders in a call's lambda arguments, `derives Enumerable`, union types `A | B`, and
+  constructor parameters: the holes of `F[_]`, `G[+_, -_]` and `_` type arguments such as
+  `Result[_, E]`, the variance before a hole or a type parameter, and declarations and calls whose
+  type brackets nest (`pairUp[F[_], A](…)`); hover,
   definition, completion and the outline for them come from the language server
 - Bracket matching, auto-closing brackets and quotes, and `//` line comments (Code | Comment with
   Line Comment), from the Avin language configuration
